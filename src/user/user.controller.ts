@@ -7,6 +7,8 @@ import {
   Post,
   Res,
 } from '@nestjs/common';
+import { NestResponse } from 'src/core/http/nest-response';
+import { NestResponseBuilder } from 'src/core/http/nest-response-builder';
 import { User } from './user.model';
 import { UserService } from './user.service';
 
@@ -25,12 +27,13 @@ export class UserController {
   }
 
   @Post()
-  create(@Body() user: User, @Res() res) {
+  create(@Body() user: User): NestResponse {
     const createdUser = this.userService.create(user);
-    res
-      .status(HttpStatus.CREATED)
-      .location(`/users/${user.username}`)
-      .json(createdUser);
+    return new NestResponseBuilder()
+      .withStatus(HttpStatus.CREATED)
+      .withHeaders({ 'Location': `/users/${user.username}` })
+      .withBody(createdUser)
+      .build();
   }
 
   @Get(':username')
