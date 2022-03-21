@@ -1,11 +1,11 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
+  HttpStatus,
   Param,
   Post,
-  Put,
+  Res,
 } from '@nestjs/common';
 import { User } from './user.model';
 import { UserService } from './user.service';
@@ -25,8 +25,12 @@ export class UserController {
   }
 
   @Post()
-  create(@Body() user) {
-    return this.userService.create(user);
+  create(@Body() user: User, @Res() res) {
+    const createdUser = this.userService.create(user);
+    res
+      .status(HttpStatus.CREATED)
+      .location(`/users/${user.username}`)
+      .json(createdUser);
   }
 
   @Get(':username')
