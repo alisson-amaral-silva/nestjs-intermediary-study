@@ -5,6 +5,7 @@ import {
   Controller,
   Get,
   HttpStatus,
+  NotFoundException,
   Param,
   Post,
   Res,
@@ -31,13 +32,22 @@ export class UserController {
     const createdUser = this.userService.create(user);
     return new NestResponseBuilder()
       .withStatus(HttpStatus.CREATED)
-      .withHeaders({ 'Location': `/users/${user.username}` })
+      .withHeaders({ Location: `/users/${user.username}` })
       .withBody(createdUser)
       .build();
   }
 
   @Get(':username')
   getByUsername(@Param() params): User {
-    return this.userService.getByUsername(params.username);
+    const user = this.userService.getByUsername(params.username);
+
+    if (!user) {
+      throw new NotFoundException({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: `User ${params.username}`,
+      });
+    }
+
+    return user;
   }
 }
